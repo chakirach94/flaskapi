@@ -9,38 +9,92 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
+            padding: 0;
+            background: linear-gradient(to bottom, #b2e8a6, #e0f7d9, #ffffff);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .button-container {
+            color: #2f4f4f;
             margin-top: 20px;
         }
 
-        button {
-            padding: 15px 20px;
-            font-size: 16px;
-            background-color: #007BFF;
-            color: white;
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+            gap: 15px;
+        }
+
+        .take-photo-btn {
+            width: 100px;
+            height: 100px;
+            background-color: #88cc88;
             border: none;
-            border-radius: 5px;
+            border-radius: 50%;
+            color: white;
+            font-size: 16px;
             cursor: pointer;
-            margin: 10px;
-            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s, background-color 0.3s;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        .take-photo-btn:hover {
+            transform: scale(1.1);
+            background-color: #78bc78;
         }
 
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        .take-photo-btn img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .gallery-btn {
+            width: 60px;
+            height: 60px;
+            background-color: #ffffff;
+            border: 2px solid #88cc88;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gallery-btn img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .gallery-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .execute-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: #88cc88;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .execute-btn:hover {
+            background-color: #78bc78;
         }
 
         .image-container {
@@ -96,7 +150,7 @@
 
         #result th {
             font-size: 16px;
-            color: #007BFF;
+            color: #88cc88;
         }
 
         #result td {
@@ -111,7 +165,7 @@
             width: 50px;
             height: 50px;
             border: 6px solid #ddd;
-            border-top: 6px solid #007BFF;
+            border-top: 6px solid #88cc88;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -123,16 +177,20 @@
     </style>
 </head>
 <body>
-    <h1>Take a Photo or Upload</h1>
+    <h1>Identify a Plant</h1>
 
     <!-- Buttons for taking a photo or uploading an image -->
     <div class="button-container">
-        <button onclick="document.getElementById('cameraInput').click()">Take a Photo</button>
-        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="previewImage(this)">
-        
-        <button onclick="document.getElementById('uploadInput').click()">Upload Image</button>
-        <input type="file" id="uploadInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
+        <button class="gallery-btn" onclick="document.getElementById('uploadInput').click()">
+            <img src="https://cdn-icons-png.flaticon.com/512/1892/1892751.png" alt="Gallery">
+        </button>
+        <button class="take-photo-btn" onclick="document.getElementById('cameraInput').click()">
+            <img src="https://cdn-icons-png.flaticon.com/512/13613/13613855.png" alt="Take Photo">
+        </button>
     </div>
+
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="previewImage(this)">
+    <input type="file" id="uploadInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
 
     <!-- Image preview -->
     <div class="image-container">
@@ -140,9 +198,7 @@
     </div>
 
     <!-- Execute button -->
-    <div class="button-container">
-        <button id="executeButton" onclick="executeImageProcessing()" disabled>Execute</button>
-    </div>
+    <button id="executeButton" class="execute-btn" onclick="executeImageProcessing()" disabled>Execute</button>
 
     <!-- Spinner -->
     <div id="spinner"></div>
