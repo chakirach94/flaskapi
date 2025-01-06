@@ -3,13 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Upload</title>
+    <title>Take a Photo or Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 15px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        img {
+            max-width: 300px;
+            max-height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        #result {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        #result p {
+            font-size: 18px;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        #result table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #result th, #result td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #result th {
+            font-size: 16px;
+            color: #007BFF;
+        }
+
+        #result td {
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Spinner Styles */
+        #spinner {
+            display: none;
+            margin: 30px auto;
+            width: 50px;
+            height: 50px;
+            border: 6px solid #ddd;
+            border-top: 6px solid #007BFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload or Take a Photo</h1>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept="image/*" capture="environment" required>
-        <button type="submit">Upload and Predict</button>
-    </form>
+    <h1>Take a Photo or Upload</h1>
+
+    <!-- Buttons for taking a photo or uploading an image -->
+    <div class="button-container">
+        <button onclick="document.getElementById('cameraInput').click()">Take a Photo</button>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="previewImage(this)">
+        
+        <button onclick="document.getElementById('uploadInput').click()">Upload Image</button>
+        <input type="file" id="uploadInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
+    </div>
+
+    <!-- Image preview -->
+    <div class="image-container">
+        <img id="imagePreview" src="" alt="Selected Image" style="display: none;">
+    </div>
+
+    <!-- Execute button -->
+    <div class="button-container">
+        <button id="executeButton" onclick="executeImageProcessing()" disabled>Execute</button>
+    </div>
+
+    <!-- Spinner -->
+    <div id="spinner"></div>
+
+    <!-- Display result -->
+    <div class="result-container">
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function previewImage(inputElement) {
+            const file = inputElement.files[0];
+            if (file) {
+                selectedFile = file; // Store the selected file for execution
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+
+                    // Enable the execute button
+                    document.getElementById('executeButton').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function executeImageProcessing() {
+            if (!selectedFile) {
+                alert('No image selected!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            // Show the spinner
+            document.getElementById('spinner').style.display = 'block';
+
+            // Hide previous results
+            document.getElementById('result').style.display = 'none';
+
+            // Send the image to the server via fetch API
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                document.getElementById('spinner').style.display = 'none'; // Hide the spinner
+                resultDiv.style.display = 'block'; // Show the result container
+                if (data.error) {
+                    resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                } else {
+                    const prediction = data.prediction;
+
+                    // Display Prediction Results
+                    let resultHTML = `<p><strong>Prediction Results</strong></p>`;
+                    resultHTML += `<table>`;
+                    resultHTML += `<tr><th>Label</th><th>Confidence (%)</th></tr>`;
+                    prediction.confidences.forEach(item => {
+                        resultHTML += `<tr><td>${item.label}</td><td>${(item.confidence * 100).toFixed(2)}</td></tr>`;
+                    });
+                    resultHTML += `</table>`;
+
+                    resultDiv.innerHTML = resultHTML;
+                }
+            })
+            .catch(error => {
+                const resultDiv = document.getElementById('result');
+                document.getElementById('spinner').style.display = 'none'; // Hide the spinner
+                resultDiv.style.display = 'block'; // Show the result container
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            });
+        }
+    </script>
 </body>
 </html>
