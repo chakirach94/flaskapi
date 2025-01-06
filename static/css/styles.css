@@ -1,0 +1,34 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+.layout {
+  display: flex;
+  min-height: calc(100vh - 56px); /* 56px for navbar height */
+}
+.sidebar {
+  width: 300px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #ccc;
+  padding: 20px;
+}
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+}
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+#loadingSpinner p {
+    font-size: 1.2rem;
+    color: #007bff;
+}
+.link-style {
+  margin-right: 20px;
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: bold;
+}
