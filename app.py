@@ -3,6 +3,7 @@ import cloudinary
 import cloudinary.uploader
 from gradio_client import Client, handle_file
 import requests
+from gradio_client import Client, handle_file
 
 app = Flask(__name__)
 
@@ -38,10 +39,12 @@ def upload_and_predict():
         print(f"Cloudinary URL: {cloudinary_url}")
         
         # Call the Gradio prediction API directly
+       
+
         client = Client("zaazo/NutriCitrus")
         result = client.predict(
-            img=cloudinary_url,  # Pass the image URL to handle_file directly
-            api_name="/predict"
+                img=handle_file(cloudinary_url),
+                api_name="/predict"
         )
         
         print(result)  # Print the result
